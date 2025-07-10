@@ -2,7 +2,8 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 20
 
-## Live URL: https://angular-auth-ec6e3.web.app/
+## Live URL: 
+https://angular-auth-ec6e3.web.app/
 
 ## Development server
 
