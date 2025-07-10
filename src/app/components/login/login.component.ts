@@ -52,7 +52,7 @@ export class LoginComponent {
 
     this.authService.login(email ?? '', password ?? '').subscribe({
       next: () => {
-        this.toastr.success('Logged in successfully!');
+        this.toastr.success('Logged in successfully! ');
         this.router.navigate(['/home'], { replaceUrl: true });
       },
       error: (err) => {
