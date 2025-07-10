@@ -1,47 +1,26 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { HomeComponent } from './components/home/home.component';
-import { LandingComponent } from './components/landing/landing.component';
-import { LoginComponent } from './components/login/login.component';
-import { SignUpComponent } from './components/sign-up/sign-up.component';
-import { canActivate, redirectLoggedInTo, redirectUnauthorizedTo } from '@angular/fire/auth-guard';
+import { Routes } from '@angular/router';
+import { authRedirectGuard } from './guards/auth-redirect-guard';
+import { authGuard } from './guards/auth-guard';
 
-const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo(['login']);
-const redirectLoggedInToHome = () => redirectLoggedInTo(['home']);
-
-const routes: Routes = [
+export const appRoutes: Routes = [
   {
     path: '',
-    pathMatch: 'full',
-    component: LandingComponent,
+    canActivate: [authRedirectGuard],
+    loadComponent: () => import('./components/landing/landing.component').then(m => m.LandingComponent)
   },
   {
     path: 'login',
-    component: LoginComponent,
-    ...canActivate(redirectLoggedInToHome)
+    canActivate: [authRedirectGuard],
+    loadComponent: () => import('./components/login/login.component').then(m => m.LoginComponent)
   },
   {
     path: 'sign-up',
-    component: SignUpComponent,
-    ...canActivate(redirectLoggedInToHome),
+    canActivate: [authRedirectGuard],
+    loadComponent: () => import('./components/sign-up/sign-up.component').then(m => m.SignUpComponent)
   },
   {
     path: 'home',
-    component: HomeComponent,
-    ...canActivate(redirectUnauthorizedToLogin)
+    canActivate: [authGuard],
+    loadComponent: () => import('./components/home/home.component').then(m => m.HomeComponent),
   },
-  {
-    path: '**',
-    redirectTo: 'login',
-    pathMatch: 'full'
-  }
-]
-
-@NgModule({
-  declarations: [],
-  imports: [
-    RouterModule.forRoot(routes)
-  ],
-  exports: [RouterModule]
-})
-export class AppRoutingModule { }
+];

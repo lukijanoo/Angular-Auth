@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -6,10 +6,18 @@ import {
   ValidationErrors,
   ValidatorFn,
   Validators,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { HotToastService } from '@ngneat/hot-toast';
+import { CommonModule } from '@angular/common';
+import { ToastrService } from 'ngx-toastr'; // <-- IMPORT ToastrService
+
 import { AuthenticationService } from 'src/app/services/authentication.service';
+
+// Angular Material Modules
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 export function passwordsMatchValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -26,10 +34,23 @@ export function passwordsMatchValidator(): ValidatorFn {
 
 @Component({
   selector: 'app-sign-up',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+  ],
   templateUrl: './sign-up.component.html',
   styleUrls: ['./sign-up.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SignUpComponent implements OnInit {
+export class SignUpComponent {
+  authService = inject(AuthenticationService);
+  toastr = inject(ToastrService); // <-- INJECT ToastrService
+  router = inject(Router);
+
   signUpForm = new FormGroup(
     {
       name: new FormControl('', Validators.required),
@@ -39,10 +60,6 @@ export class SignUpComponent implements OnInit {
     },
     { validators: passwordsMatchValidator() }
   );
-
-  constructor(private authService: AuthenticationService, private router: Router, private toast: HotToastService) { }
-
-  ngOnInit(): void { }
 
   get email() {
     return this.signUpForm.get('email');
@@ -66,15 +83,16 @@ export class SignUpComponent implements OnInit {
     }
 
     const { name, email, password } = this.signUpForm.value;
-    this.authService.signUp(name, email, password).pipe(
-      this.toast.observe({
-        success: 'Congrats! You are all signed up',
-        loading: 'Signing up...',
-        // error: ({ message }) => `${message}, Email exists, try new one!`
-        error: `Email exists, try new one!`
-      })
-    ).subscribe(() => {
-      this.router.navigate(['/home']);
+
+    this.authService.signUp(name ?? '', email ?? '', password ?? '').subscribe({
+      next: () => {
+        this.toastr.success('Congrats! You are all signed up');
+        // Apply the same fix here!
+        this.router.navigate(['/home'], { replaceUrl: true });
+      },
+      error: (err) => {
+        this.toastr.error('Sign up failed. That email may already be in use.');
+      }
     });
   }
 }

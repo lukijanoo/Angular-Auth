@@ -1,9 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router'; // <-- Import
+import { MatButtonModule } from '@angular/material/button'; // <-- Import
 
 @Component({
   selector: 'app-landing',
+  standalone: true, // <-- ADD
+  imports: [RouterLink, MatButtonModule], // <-- ADD
   templateUrl: './landing.component.html',
-  styleUrls: ['./landing.component.scss']
+  styleUrls: ['./landing.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LandingComponent implements OnInit {
 
@@ -11,5 +16,4 @@ export class LandingComponent implements OnInit {
 
   ngOnInit(): void {
   }
-
 }
